@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zoom da Viewport</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0;
+        }
+        .header-menu, footer {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .header-menu {
+            justify-content: flex-end;
+            height: 60px;
+            background: #1c87c9;
+            color: #fff;
+        }
+        h2 {
+            margin: 0 0 8px;
+        }
+        ul li {
+            display: inline-block;
+            padding: 0 10px;
+            list-style: none;
+        }
+        aside {
+            flex: 0.4;
+            height: 165px;
+            padding-left: 15px;
+            border-left: 1px solid #666;
+        }
+        section {
+            flex: 1;
+            padding-right: 15px;
+        }
+        footer {
+            padding: 0 10px;
+            background: #ccc;
+        }
+
+        input#url, input#go, input#zoomControl {
+            height: 2em;
+            margin: 0.5em;
+        }
+        
+        #zoomValueDisplay, #files {line-height: 2em; margin: auto 1em;}
+        
+        iframe {overflow-clip-margin: unset !important; overflow: auto !important;}
+    </style>
+</head>
+<body id="main">
+    <input id="url" type="text" size="80" width="100%" height="20" id="select" value="" placeholder="Enter a video file name or an YouTube src embeded URL"/>
+    <input id="go" type="button" value="Load" />
+    <input id="zoomControl" type="range" min="100" max="300" value="150" />
+    <span id="zoomValueDisplay">150%</span>
+    <a id="files" href="." target="_blank">[ Files in this folder ]</a>
+
+    <video id="video-player" class="frame" width="1700" height="1000" controls style="display: none;">
+        <source id="video-player-src" src="Nome do arquivo.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <iframe id="viewport" class="frame" width="150%" height="150%" src="https://www.youtube.com/embed/8GE93NB4Npw?si=xl3WNGVzwnJ97LFD" title="1º encontro Polare - Processo de Instalação e Introdução aos Módulos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+    <script type="text/javascript">
+        document.getElementById("go").addEventListener("click", function(event) {
+            // Definição do evento de apertar enter
+            var enterEvent = new KeyboardEvent("keypress", {
+                key: "Enter",
+                code: "Enter",
+                keyCode: 13,
+                which: 13,
+                charCode: 13,
+                bubbles: true
+            });
+            
+            document.getElementById("url").dispatchEvent(enterEvent);
+        });
+
+        // Get the input field
+        var input = document.getElementById("url");
+
+        // Execute a function when the user presses a key on the keyboard
+        input.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+
+                var urlPattern = /^(?:\w+:)?\/\/([^\s.]+\.\S{2}|localhost[:?\d]*)\S*$/;
+
+                document.querySelectorAll('.frame').forEach(function(frames) {
+                    frames.style.display = 'none';
+                });
+
+                if (urlPattern.test(input.value)) { // Corrigido para input.value
+                    document.getElementById('viewport').style.display = 'block';
+                    document.getElementById('viewport').setAttribute('src', input.value);
+                    // Não é necessário chamar .load() em um elemento iframe
+                } else {
+                    document.getElementById('video-player').style.display = 'block';
+                    document.getElementById('video-player-src').setAttribute('src', input.value);
+                    document.getElementById('video-player').load(); 
+                }
+            }
+        });
+
+        // Adicionar evento de mudança para o controle de zoom
+        document.getElementById("zoomControl").addEventListener("input", function(event) {
+            var zoomValue = parseInt(event.target.value); // Obter o valor de zoom do controle deslizante
+
+            // Atualizar a largura e a altura dos elementos iframe e video
+            document.getElementById('main').style.width = zoomValue + "%";
+            document.getElementById('viewport').style.width = zoomValue + "%";
+            document.getElementById('viewport').style.height = zoomValue + "%";
+            document.getElementById('video-player').style.width = zoomValue + "%";
+            document.getElementById('video-player').style.height = zoomValue + "%";
+
+            // Atualizar o valor de exibição do zoom
+            document.getElementById('zoomValueDisplay').textContent = zoomValue + "%";
+        });
+    </script>
+</body>
+</html>
+
